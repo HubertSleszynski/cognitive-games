@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum GameType {
+  MEMORY
+  SEQUENCE_MEMORY
+  N_BACK
+  SUDOKU
+  SLIDER
+  HANOI
+}
+
+model User {
+  id        String        @id @default(cuid())
+  email     String        @unique
+  name      String?
+  password  String
+  createdAt DateTime      @default(now())
+
+  role             String  @default("USER")
+  age              Int?
+  gender           String?
+  education        String?
+  occupation       String?
+  gamingExperience String?
+  computerUsage    String?
+
+  attempts  GameAttempt[]
+}
+
+model GameAttempt {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  game       GameType
+  difficulty Int
+
+  startedAt  DateTime
+  endedAt    DateTime
+  durationMs Int
+
+  accuracy   Float?
+  moves      Int?
+  errors     Int?
+  hintsUsed  Int?
+
+  details    Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, game, createdAt])
+}
